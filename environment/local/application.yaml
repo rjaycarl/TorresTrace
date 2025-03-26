@@ -1,0 +1,41 @@
+server:
+  port: 9002
+
+springdoc:
+  api-docs:
+    path: /torrestrace-api-docs
+  swagger-ui:
+    path: /torrestrace-swagger-ui.html
+
+app:
+  timezone: Asia/Manila
+
+
+
+torrestrace:
+  logger-type: file # opt: file | database
+  file-path: logs/torrestrace/request-logs.jsonl
+  max-file-size-mb: 10
+  max-backup-files: 5
+
+spring:
+  main:
+    banner-mode: console
+  banner:
+    location: classpath:banner.txt
+  datasource:
+    url: jdbc:postgresql://localhost:5432/torrestrace
+    username: torrestrace
+    password: passwordzxc
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate   # 'validate' / 'update' / 'create' / 'create-drop'
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true

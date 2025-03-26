@@ -1,0 +1,158 @@
+openapi: 3.0.1
+info:
+  title: TorresTrace Replay API
+  version: 1.0.0
+  description: |
+    TorresTrace API provides endpoints to replay and manage HTTP requests.
+    This spec covers the HttpRequestLogController and ReplayController functionalities.
+  contact:
+    name: R-Jay Carl Torres
+    url: https://github.com/rjaycarl/
+    email: rjaycarltorres@gmail.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+
+tags:
+  - name: HttpRequestLogs
+    description: Endpoints for managing HTTP request logs.
+  - name: ReplayRequests
+    description: Endpoints for replaying HTTP request logs.
+
+paths:
+  /api/v1/torrestrace/logs:
+    get:
+      tags:
+        - HttpRequestLogs
+      summary: Get all logged requests
+      operationId: getAllLogs
+      responses:
+        '200':
+          description: List of HTTP request logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HttpRequestLog'
+    post:
+      tags:
+        - HttpRequestLogs
+      summary: Log a new HTTP request
+      operationId: logRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HttpRequestLog'
+      responses:
+        '201':
+          description: Log created
+
+  /api/v1/torrestrace/logs/{id}:
+    get:
+      tags:
+        - HttpRequestLogs
+      summary: Get a logged request by ID
+      operationId: getLogById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the logged request
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: HTTP request log details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpRequestLog'
+    delete:
+      tags:
+        - HttpRequestLogs
+      summary: Delete a logged request by ID
+      operationId: deleteLogById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the logged request to delete
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Log deleted successfully
+
+  /api/v1/torrestrace/replay/{id}:
+    post:
+      tags:
+        - ReplayRequests
+      summary: Replay a logged request by ID
+      operationId: replayRequest
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the logged request to replay
+          schema:
+            type: string
+            format: uuid
+        - name: targetUrl
+          in: query
+          required: false
+          description: Optional override for the original request URL
+          schema:
+            type: string
+            format: uri
+
+      responses:
+        '200':
+          description: Replay result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpReplayResult'
+        '404':
+          description: Request log not found
+        '400':
+          description: Invalid input (e.g., malformed URL)
+
+components:
+  schemas:
+    HttpRequestLog:
+      type: object
+      description: A logged HTTP request
+      properties:
+        id:
+          type: string
+          format: uuid
+        method:
+          type: string
+        url:
+          type: string
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        body:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    HttpReplayResult:
+      type: object
+      description: Result of replaying a logged HTTP request
+      properties:
+        statusCode:
+          type: integer
+        responseBody:
+          type: string
+        durationMs:
+          type: integer
+          format: int64
